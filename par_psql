@@ -1,0 +1,212 @@
+#!/bin/bash
+# Author: Graeme Bell, Geomatics Section, Norwegian Forest and Landscape Institute   
+# <grb@sk--oglandskap.no>, <graeme.b.bell@gm--ail.com>. Remove the -- to email me. 
+# Open sourced with permission - see license.md
+# v0.1
+
+# Parpsql runs any lines marked with --& as a parallel thread, keeping the same command line options.
+# Beware that each --& will run separately, so multi-line SQL should be checked carefully when --& is used.
+# Scripts written for parpsql also run in psql. 
+# You must use --file=filename, not -f, or stdin for the input.
+
+# bash safety settings
+set -uo pipefail
+IFS=$'\n\t'
+
+# globals
+DEBUG=0
+inputfile=""
+sqlline=""
+currentfile=""
+serialtodofile=""
+semicolon=0
+parpsqlmarker=0
+parmode=0
+lineno=1
+cmdline="$@"
+
+# helper function
+function debug {
+  if [ $DEBUG -eq 1 ];
+  then
+    echo "$@"
+  fi
+}
+
+# Check that the input file is specified with --file
+
+debug "inputfile: $inputfile"
+debug "Input parameters: $cmdline"
+
+for item in "$@"; do               # for each item in param array
+
+  if [[ $item == "-f" ]] ; then 
+    echo "-f parameter detected. Aborted."
+    echo "  parpsql requires --file=filename. Please don't use -f or stdin."
+    exit
+  fi
+
+  if [[ $item == "--file="* ]] ; then   # if it starts with --file=
+    inputfile="${item:7}"
+  fi
+
+done
+
+# Check the input file was specified
+
+if [[ "$inputfile" == "" ]] ; then 
+    echo "--file parameter missing. Aborted."
+    echo "  parpsql requires --file=filename. Please don't use -f or stdin."
+    exit
+fi
+
+
+# Check the input file exists
+
+if [[ ! -f "$inputfile" ]] ; then
+    echo "File $inputfile does not exist. Aborted."
+    exit
+fi
+
+# Now parse up the file into parallel and serial sections. 
+# Simple cases are treated first.
+# The basic idea is that commands are built up into 'currentfile' and serial sets of commands into 'serialtodo'
+
+parseloop() {
+
+  # Find out if we're changing to a parallel or serial section, or have an unsupported parallel query.
+  # Warning: >0 is going to be 'true' and 0 'false' here, the opposite of normal BASH definitions.
+
+  semicolon=$(echo "$sqlline" | grep ';' | wc -l)
+  parpsqlmarker=$(echo "$sqlline" | grep -- '--&' | wc -l)    # '--' prevents grep parsing '--&' as its own param
+  transaction=$(echo "$sqlline" | grep --ignore-case "TRANSACTION\|BEGIN\|COMMIT\|ROLLBACK" | wc -l) 
+
+  debug "SC=$semicolon; PSQLM=$parpsqlmarker ; TRANS=$transaction; PARMODE=$parmode"
+
+  # If you see BEGIN or TRANSACTION, and there is a parpsqlmarker, it's an error. Exit. 
+  if [[ "$transaction" > 0 && "$parpsqlmarker" > 0 ]] ; then 
+	echo 'Error 1: BEGIN/COMMIT/TRANSACTION/ROLLBACK keyword detected. Transactions/function statements may not be used in parallel mode. Exiting.'; 
+	exit 1; 
+
+  # If you see a parpsqlmarker with no semicolon; it's an error in the input
+  elif [[ "$semicolon" == 0 && "$parpsqlmarker" > 0 ]]; then 
+	echo 'Error 2: When you use the parallel marker --&, you must have ";" in the same line. Exiting.'; 
+	exit 1; 
+
+  # If you don't see a semicolon or parpsqlmarker, keep writing to the current file
+  elif [[ "$semicolon" == 0 && "$parpsqlmarker" == 0 ]]; then 
+	debug 'No change of mode. Continuing to write to file'; 
+	echo $sqlline >> $currentfile
+
+  # if you see a semicolon and a parpsqlmarker together, and are in parallel mode, 
+  elif [[ "$semicolon" > 0 && "$parpsqlmarker" > 0 && "$parmode" > 0 ]]; then 
+	debug 'parpsql marker found; in parallel mode already; staying in parallel mode'
+
+  # write the current line out to currentfile
+	echo $sqlline >> $currentfile
+
+  # start running the current file in parallel
+	( eval psql "$cmdline" --file=$currentfile && rm -f "$currentfile" ) &  
+
+  # make a new current file.
+	currentfile=$(mktemp)
+
+  # if you see a semicolon and a parpsqlmarker together, and are in serial mode, change to parallel mode
+  elif [[ "$semicolon" > 0 && "$parpsqlmarker" > 0 && "$parmode" == 0 ]]; then 
+	debug 'parpsql marker found; in serial mode; changing to parallel mode'
+
+  # write the current line out to the current file
+	echo $sqlline >> $currentfile
+
+  # first, run the 'serial code' file that was previously built up, non-parallelised
+  # wait for it to finish
+	( eval psql $cmdline --file=$serialtodofile && rm -f "$serialtodofile" ) 
+	
+  # then run the current file in parallel && delete it after
+	( eval psql $cmdline --file=$currentfile && rm -f "$currentfile" ) &
+	
+  # start parallel mode
+	parmode=1
+
+  # make a new current file
+	currentfile=$(mktemp)
+
+  # make a new serialtodo file
+	serialtodofile=$(mktemp)
+
+  # If you see a semicolon but no parpsql marker, and are in parallel mode, end parallel mode, start serial mode.
+  elif [[ "$semicolon" > 0 && "$parpsqlmarker" == 0 && "$parmode" > 0 ]]; then 
+	debug 'ending parallel mode, starting serial mode'
+
+  # Syncronise parallel tasks.
+	wait
+
+  # Save the current line to the current file.
+ 	echo $sqlline >> $currentfile	
+
+  # concatenate the current file to serial-to-do
+	cat $currentfile >> $serialtodofile
+ 	rm $currentfile
+
+  # end parallel mode
+	parmode=0
+
+  # make a new current file
+	currentfile=$(mktemp)
+	
+  # NOTE: you might think of 'optimising' by removing the currentfile creations
+  # but remember that there may have been e.g. 3-4 previous partial lines put into currentfile 
+  # before the current part was moved into serialtodofile. So don't do that please.
+
+  # If you see a semicolon but no parpsql marker, and are in serial mode, add the current file to the serial file
+  elif [[ "$semicolon" > 0 && "$parpsqlmarker" == 0 && "$parmode" == 0 ]]; then 
+	debug 'staying in serial mode'
+
+  # Save line to current file.
+ 	echo $sqlline >> $currentfile	
+
+  # Save the current file into serialtodofile
+	cat $currentfile >> $serialtodofile
+        rm $currentfile
+
+  # make a new current file
+	currentfile=$(mktemp)
+
+  fi 
+
+}
+
+
+# main function starts here
+
+currentfile=$(mktemp)
+serialtodofile=$(mktemp)
+
+debug "currentfile: $currentfile"
+debug "serialtodofile: $serialtodofile"
+
+while IFS='' read -r sqlline || [[ -n $sqlline ]]; do
+debug "Current line number: $lineno"
+parseloop;
+lineno=$((lineno+1))
+done < $inputfile 
+
+rm $currentfile
+
+wait
+( eval psql $cmdline --file=$serialtodofile && rm -f "$serialtodofile" ) 
+
+# At the end, we must ensure everything is synchronised then run 'serialtodofile' in case anything is left
+# e.g. in case we ended in serial mode. 
+# end of main function
+
+
+# TODO: Currently don't handle 'broken' psql files very well, 
+#       you can have partial execution with a leftover 'currentfile' that doesn't execute.
+#       Add a test  here in case any leftover text without a ';' ends up in currentfile.
+#       it can go just before "rm $currentfile" after the while loop
+# TODO: add a proper comment parser and multi-line error detector
+#       (e.g. --;   would be misparsed as a query;    BEGIN TRANSACTION \n ;  is not detected) .... 
+# TODO: It would be nicer to pre-parse the whole file to find out if there will be an error during execution and abort before beginning.
+# TODO: clean up temp files on abort.
+
