@@ -165,7 +165,7 @@ It’s available under the postgresql open source license. I am grateful to the 
 
 
 Graeme Bell  
-grb@skogoglandskap.no
+grb@skogog-land-skap.no   (remove the hyphens to email me)
 
 http://github.com/gbb/par_psql/ 
 
