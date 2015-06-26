@@ -164,7 +164,7 @@ So please keep in mind the tool has been built as a quick hack for easy GIS-styl
 It’s available under the postgresql open source license. I am grateful to the Norwegian Forest and Landscape Institute (soon to be integrated into the Norwegian NIBIO Institute) for supporting and open sourcing this and other scripts as a contribution to this year’s FOSS4G Europe Open Source Mapping conference.
 
 
-Graeme Bell
+Graeme Bell  (contact email is at the top of the par_psql file)
 
 http://github.com/gbb/par_psql/ 
 
