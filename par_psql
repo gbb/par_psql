@@ -2,7 +2,7 @@
 # Author: Graeme Bell, Geomatics Section, Norwegian Forest and Landscape Institute   
 # <grb@sk--ogoglandskap.no>. Remove the -- to email me. 
 # Open sourced with permission - see license.md
-# v0.1
+# v0.2
 
 # Parpsql runs any lines marked with --& as a parallel thread, keeping the same command line options.
 # Beware that each --& will run separately, so multi-line SQL should be checked carefully when --& is used.
@@ -37,6 +37,13 @@ function debug {
 
 debug "inputfile: $inputfile"
 debug "Input parameters: $cmdline"
+
+# Ugly alternative to getopt. Print out version and exit if --parpsqlversion is used.
+for item in "$@"; do               # for each item in param array
+  if [[ $item == "--parpsqlversion" ]] ; then
+    echo "par_psql version 0.2"; exit
+  fi
+done
 
 for item in "$@"; do               # for each item in param array
 
