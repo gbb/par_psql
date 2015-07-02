@@ -51,9 +51,10 @@ How to install it
 In Linux or MacOS (and perhaps Cygwin for Windows), type this as an admin/root user: 
 
     git clone https://github.com/gbb/par_psql
+    cd par_psql
     ./install.sh
 
-It will be installed into the same directory as 'psql'.
+It will be installed into the same directory as 'psql'. 
 
 Some cool uses
 --------------
