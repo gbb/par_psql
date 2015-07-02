@@ -59,9 +59,9 @@ It will be installed into the same directory as 'psql'.
 Some cool uses
 --------------
 
-*GIS and any other discipline where you prepare diverse source datasets in a workflow before intersecting/integrating them together.*
+- *GIS and any other discipline where you prepare diverse source datasets in a workflow before intersecting/integrating them together.*
 
-*Where you have CPU-intensive work, split the work by one field and run in parallel without WAL logging, then join the results.* e.g.
+- *Where you have CPU-intensive work, split the work by one field and run in parallel without WAL logging, then join the results.* e.g.
 
 ```
 create temporary table part1 as select myfunc(columns) from table where id%4=0; --&
@@ -73,11 +73,10 @@ select * from part1 union select * from part2 union
 select * from part3 union select * from part4;
 ```
 
-- It’s a very good idea to have an index on the field you’re splitting on!
+  - It’s a very good idea to have an index on the field you’re splitting on!
+  - (You can also split the work e.g. by GIS bounding boxes, or using range types, to process parts of a map, or periods of time, in parallel)
 
-- (You can also split the work e.g. by GIS bounding boxes, or using range types, to process parts of a map, or periods of time, in parallel)
-
-*Preview runs, without delaying the main task.*
+- *Preview runs, without delaying the main task.*
 
 ```
 create table smallpreview as select myfunc(columns) from table LIMIT 10000 --&  
@@ -85,10 +84,10 @@ create table bigpreview as select myfunc(columns) from table LIMIT 100000; --&
 create table result as select myfunc(columns) from table; --&   — full result
 ```
 
-(You can use LIMIT or modulo arithmetic or a GIS bounding box to select preview rows (e.g. where id%100=0), LIMIT xxxxx.)
+  - (You can use LIMIT or modulo arithmetic or a GIS bounding box to select preview rows (e.g. where id%100=0), LIMIT xxxxx.)
 
 
-*Scripts where several tasks must run at fixed times after the script begins (use pg_sleep() and run in parallel).*
+- *Scripts where several tasks must run at fixed times after the script begins (use pg_sleep() and run in parallel).*
 
 ```
 select pg_sleep(3600); select ‘Task 1, begins 1 hour after start of script’; --&
