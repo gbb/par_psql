@@ -1,62 +1,31 @@
-\echo 'Similar to benchmark2.sql, but using 4 unlogged tables independently'
+\echo 'An estimate of par_psql overhead. 4 runs of 4 parallel threads with synchronisation points.'
 
--- The hailstone function uses mainly the cpu, not much ram or I/O.
--- Here, it is included in the benchmark to show that serial code 
--- such as function definitions can be mixed with parallelised code.
+select 4; --&
+select 4; --&
+select 4; --&
+select 4; --&
 
-\echo 'Defining the benchmark function.'
+select 1;
 
-CREATE OR REPLACE FUNCTION hailstone(startvalue NUMERIC)
-RETURNS NUMERIC AS $$
-DECLARE n NUMERIC;
-BEGIN
-  n:=STARTVALUE; 
-  FOR i IN 1..1000 LOOP  
-    WHILE n>1 LOOP
-      IF n%2=0 THEN n:=n/2; ELSE n:=1+n*3; END IF;
-    END LOOP;
-  END LOOP;
-  RETURN n;
-END;
-$$ LANGUAGE plpgsql;
+select 4; --&
+select 4; --&
+select 4; --&
+select 4; --&
 
-\echo 'Preparing 4 independent results tables.'
+select 1;
 
-CREATE UNLOGGED TABLE par_psql_result1 (id SERIAL, value NUMERIC); --&
-CREATE UNLOGGED TABLE par_psql_result2 (id SERIAL, value NUMERIC); --& 
-CREATE UNLOGGED TABLE par_psql_result3 (id SERIAL, value NUMERIC); --& 
-CREATE UNLOGGED TABLE par_psql_result4 (id SERIAL, value NUMERIC); 
+select 4; --&
+select 4; --&
+select 4; --&
+select 4; --&
 
--- use the modulo operator to split the work to be done into 4 balanced sets
+select 1;
 
-\echo 'Starting batch 1/4.'
+select 4; --&
+select 4; --&
+select 4; --&
+select 4; --&
 
-INSERT INTO par_psql_result1 SELECT id,hailstone(value)
-    FROM par_psql_test where id%4=0; --&
-
-\echo 'Starting batch 2/4.'
-
-INSERT INTO par_psql_result2 SELECT id,hailstone(value)
-    FROM par_psql_test where id%4=1; --&
-
-\echo 'Starting batch 3/4.'
-
-INSERT INTO par_psql_result3 SELECT id,hailstone(value)
-    FROM par_psql_test where id%4=2; --&
-
-\echo 'Starting batch 4/4.'
-
-INSERT INTO par_psql_result4 SELECT id,hailstone(value)
-    FROM par_psql_test where id%4=3; --&
-
-\echo 'Joining results.'
-
-CREATE UNLOGGED TABLE par_psql_result AS 
-  SELECT * FROM par_psql_result1 UNION 
-  SELECT * FROM par_psql_result2 UNION 
-  SELECT * FROM par_psql_result3 UNION 
-  SELECT * FROM par_psql_result4; 
-
-\echo 'Benchmark finished.'
+select 1;
 
 select 'Done';

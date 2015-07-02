@@ -5,7 +5,7 @@ DB_NAME="par_psql_test"
 DB_OPTIONS="-d $DB_NAME"
 LOG="/tmp/par_psql_benchmarks"
 
-echo "" > $LOG
+par_psql --parpsqlversion > $LOG
 
 setup_benchmark() {
   echo "Creating fresh database to run '$1'"
@@ -16,10 +16,10 @@ setup_benchmark() {
 
 cd benchmarks
 
-for bm in benchmark?.sql; do 
+for bm in $(ls benchmark*.sql | sort -V); do 
   for program in psql par_psql; do 
 
-  setup_benchmark $bm;
+  setup_benchmark "$bm";
   sleep 3 # wait a moment for DB/server to catch up with work before starting run
 
   echo "==== Starting benchmark run of $bm using $program ===="  
