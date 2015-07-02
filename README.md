@@ -4,11 +4,7 @@ par_psql v0.2 (July 2nd, 2015): Parallel ‘psql’.
 *Run parallel queries and workflows inline in PostgreSQL’s psql tool.*
 *Useful for ‘slightly big data’, GIS.*
 
-Hi everyone!
-
-http://github.com/gbb/par_psql/             
-
-This is a tool (par_psql) which makes parallelisation easier for postgres/psql users, by providing a new piece of syntax.
+Hi! This is a tool (par_psql) which makes parallelisation easier for postgres/psql users, by providing a new piece of syntax.
 
 *Latest news (2nd July 2015): PG9.3 and PG9.4 benchmarks added, below.*
 
