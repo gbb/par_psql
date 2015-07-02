@@ -10,6 +10,8 @@ http://github.com/gbb/par_psql/
 
 This is a tool (par_psql) which makes parallelisation easier for postgres/psql users, by providing a new piece of syntax.
 
+*Latest news (2nd July 2015): PG9.3 and PG9.4 benchmarks added, below.*
+
 How to use it
 -------------
 
