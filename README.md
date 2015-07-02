@@ -116,7 +116,7 @@ Observations from results
 - CPU-intensive pgsql functions parallelise but less well. 
 - The cost of (par_psql + parallel sessions + synchronisation waits) is low (50ms total to run a group of parallel queries and synchronise them). 
 
-More benchmarking information here: [https://github.com/gbb/par_psql/blob/master/BENCHMARKS.md](BENCHMARK.md)
+More benchmarking information here: [BENCHMARKS.md](https://github.com/gbb/par_psql/blob/master/BENCHMARKS.md)
 
 
 Tips
