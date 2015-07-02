@@ -43,7 +43,7 @@ export PGPASSWORD=xyz123; par_psql -h localhost -U username -d mydb —-file=mys
 
 The tool is backwards compatible with existing psql scripts (*) and should work with any version of PostgreSQL. The only dependencies are bash and psql. Benchmarks and examples are provided at http://github.com/gbb/par_psql. (I'll add more examples later at http://parpsql.com.)
 
-*   because --&  is a comment in SQL, par_psql scripts will run without modification (or parallelism) in the psql client
+Since --&  is a comment in SQL, par_psql scripts will run without modification (or parallelism) in the psql client.
 
 How to install it
 -------------
