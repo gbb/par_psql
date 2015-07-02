@@ -99,11 +99,22 @@ Examples
 To see some examples, you can try the following commands in the distribution directory:
 
 ```
-./run_benchmark.sh                                   # (see benchmark.sql)
+./run_benchmarks.sh                                  # (see benchmarks/*.sql)
 ./par_psql --file=example.sql -d par_psql_test       # (see example.sql)
 ```
 
-The run_benchmark.sh example runs on a 2-core server in 12 seconds (psql) and slightly under 7 seconds (par_psql).
+Some example benchmarks (v0.3), 4-way, SSD+RAID, xeon, taken July 2nd 2015. 
+
+Please note, these benchmarks are not official in any sense, they're just some timing tests I 
+have quickly made up to look at CPU-constrained and pgplsql performance as well as program 
+overhead. The benchmarks have been limited to 4-way parallelism.
+
+|Benchmark|Description|psql|par_psql|
+|:---:|:-------:|:----:|:------:|
+|1|SELECT equality, 1 million rows|||
+|2|pl/pgsql function, compute+i/o|||
+|3|as (2) but with separate intermediate results tables|||
+|4|program overhead? 4 sets of 4-way parallel queries with 4 synchronisation points|||
 
 Tips
 ----

@@ -1,4 +1,4 @@
-\echo Setting up benchmark for 4-way parallelism.
+\echo Benchmark for 4-way parallelism using a user-defined pg/plsql function.
 
 SELECT SETSEED(0.5);
 

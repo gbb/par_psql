@@ -1,4 +1,4 @@
-\echo 'Beginning the benchmark.'    
+\echo 'Similar to benchmark2.sql, but using 4 unlogged tables independently'
 
 -- The hailstone function uses mainly the cpu, not much ram or I/O.
 -- Here, it is included in the benchmark to show that serial code 
@@ -20,32 +20,43 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-\echo 'Preparing the results table.'
+\echo 'Preparing 4 independent results tables.'
 
-CREATE TABLE par_psql_result (id SERIAL, value NUMERIC);
+CREATE UNLOGGED TABLE par_psql_result1 (id SERIAL, value NUMERIC); --&
+CREATE UNLOGGED TABLE par_psql_result2 (id SERIAL, value NUMERIC); --& 
+CREATE UNLOGGED TABLE par_psql_result3 (id SERIAL, value NUMERIC); --& 
+CREATE UNLOGGED TABLE par_psql_result4 (id SERIAL, value NUMERIC); 
 
 -- use the modulo operator to split the work to be done into 4 balanced sets
 
 \echo 'Starting batch 1/4.'
 
-INSERT INTO par_psql_result SELECT id,hailstone(value)
+INSERT INTO par_psql_result1 SELECT id,hailstone(value)
     FROM par_psql_test where id%4=0; --&
 
 \echo 'Starting batch 2/4.'
 
-INSERT INTO par_psql_result SELECT id,hailstone(value)
+INSERT INTO par_psql_result2 SELECT id,hailstone(value)
     FROM par_psql_test where id%4=1; --&
 
 \echo 'Starting batch 3/4.'
 
-INSERT INTO par_psql_result SELECT id,hailstone(value)
+INSERT INTO par_psql_result3 SELECT id,hailstone(value)
     FROM par_psql_test where id%4=2; --&
 
 \echo 'Starting batch 4/4.'
 
-INSERT INTO par_psql_result SELECT id,hailstone(value)
+INSERT INTO par_psql_result4 SELECT id,hailstone(value)
     FROM par_psql_test where id%4=3; --&
 
-\echo Benchmark finished
+\echo 'Joining results.'
+
+CREATE UNLOGGED TABLE par_psql_result AS 
+  SELECT * FROM par_psql_result1 UNION 
+  SELECT * FROM par_psql_result2 UNION 
+  SELECT * FROM par_psql_result3 UNION 
+  SELECT * FROM par_psql_result4; 
+
+\echo 'Benchmark finished.'
 
 select 'Done';
