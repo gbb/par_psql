@@ -10,7 +10,7 @@ if [ $? = 0 ] ; then
   installdir=$(dirname $psqltest)
   cp ./par_psql $installdir
   if [ $? = 0 ]; then
-    chmod 0755 $install_dir/par_psql
+    chmod 0755 "$installdir/par_psql"
     echo -en "\nInstallation of par_psql into $installdir was successful.\n"
   else
     echo -en "\nUnable to copy par_psql into $installdir. Installation failed.\n"
