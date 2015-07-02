@@ -1,5 +1,5 @@
-par_psql v0.1: Parallel ‘psql’. 
-------------------------------
+par_psql v0.2 (July 2nd, 2015): Parallel ‘psql’. 
+-----------------------------------------------
 
 *Run parallel queries and workflows inline in PostgreSQL’s psql tool.*
 *Useful for ‘slightly big data’, GIS.*
@@ -10,7 +10,6 @@ http://github.com/gbb/par_psql/
 
 This is a tool (par_psql) which makes parallelisation easier for postgres/psql users, by providing a new piece of syntax.
 
-
 How to use it
 -------------
 
@@ -19,7 +18,7 @@ When you stop writing --&, the script synchronises (waits for everything to comp
 
 This allows easy control of parallelism and synchronisation inline within your SQL script.
 
-par_psql is a wrapper around psql, so it should be fully compatible with existing scripts and use cases. The degree of parallelism can be limited manually or automatically via e.g. pgbouncer.
+par_psql is a wrapper around psql, so it should be fully compatible with existing scripts and use cases. The degree of parallelism can be limited manually or automatically via e.g. pgbouncer. There is one extra option: you can also use --parpsqlversion to get the version number of par_psql.
 
 Quick example
 -------------
@@ -45,6 +44,16 @@ export PGPASSWORD=xyz123; par_psql -h localhost -U username -d mydb —-file=mys
 The tool is backwards compatible with existing psql scripts (*) and should work with any version of PostgreSQL. The only dependencies are bash and psql. Benchmarks and examples are provided at http://github.com/gbb/par_psql. (I'll add more examples later at http://parpsql.com.)
 
 *   because --&  is a comment in SQL, par_psql scripts will run without modification (or parallelism) in the psql client
+
+How to install it
+-------------
+
+In Linux or MacOS (and perhaps Cygwin for Windows), type this as an admin/root user: 
+
+    git clone https://github.com/gbb/par_psql
+    ./install.sh
+
+It will be installed into the same directory as 'psql'.
 
 Some cool uses
 --------------
