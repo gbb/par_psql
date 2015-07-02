@@ -48,7 +48,7 @@ Since --&  is a comment in SQL, par_psql scripts will run without modification (
 How to install it
 -------------
 
-In Linux or MacOS (and perhaps Cygwin for Windows), type this as an admin/root user: 
+In Linux, BSD or MacOS (and perhaps Cygwin for Windows), type this as an admin/root user: 
 
     git clone https://github.com/gbb/par_psql
     cd par_psql
