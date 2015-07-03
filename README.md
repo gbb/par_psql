@@ -62,10 +62,10 @@ Some cool uses
 - Where you have CPU-intensive work, split the work by one field and run in parallel without WAL logging, then join the results. e.g.
 
 ```
-create temporary table part1 as select myfunc(columns) from table where id%4=0; --&
-create temporary table part2 as select myfunc(columns) from table where id%4=1; --&
-create temporary table part3 as select myfunc(columns) from table where id%4=2; --&
-create temporary table part4 as select myfunc(columns) from table where id%4=3; --&
+create unlogged table part1 as select myfunc(columns) from table where id%4=0; --&
+create unlogged table part2 as select myfunc(columns) from table where id%4=1; --&
+create unlogged table part3 as select myfunc(columns) from table where id%4=2; --&
+create unlogged table part4 as select myfunc(columns) from table where id%4=3; --&
 create table whole as 
 select * from part1 union select * from part2 union 
 select * from part3 union select * from part4;
