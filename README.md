@@ -104,11 +104,11 @@ To see some examples, you can try the following commands in the distribution dir
 Some example benchmarks, 4-way parallelism, SSD+ software RAID, Xeon E3 4Ghz, taken July 2nd 2015 using the 
 v0.2 edition of par_psql.
 
-|PG 9.4.4 benchmarks|Description|psql|par_psql|
+|PG 9.3.7 benchmarks|Description|psql|par_psql|
 |:---:|:-------:|:----:|:------:|
 |1|SELECT with where clause, 10 million rows (work is in memory)|185s|52s|
-|2|pl/pgsql function calls on 200000 rows (work is in memory)|77s|33s|
-|3|overhead - 4 groups of empty queries with synchronisation points|0.015s|0.228s|
+|2|pl/pgsql static function calls on 200000 rows (work is in memory)|62s|16s|
+|3|overhead - 4 groups of empty queries with synchronisation points|0.012s|0.220s|
 
 Observations from results
 -------
