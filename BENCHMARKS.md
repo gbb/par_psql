@@ -20,6 +20,14 @@ implemented with 4-way parallelism.
 |2|pl/pgsql function calls on 200000 rows (work is in memory)|77s|33s|
 |3|overhead - 4 groups of empty queries with synchronisation points|0.015s|0.228s|
 
+*UPDATE*! I have discovered that the poor performance of the pl/pgsql is due to a locking problem in 
+postgres. It can be solved by using the 'STATIC' keyword in your function. Here's the new result:
+
+|PG 9.3.7 benchmarks|Description|psql|par_psql|
+|:---:|:-------:|:----:|:------:|
+|2static|pl/pgsql static function calls on 200000 rows (work is in memory)|62s|16s|
+
+
 Observations from results
 -------
 - CPU-intensive queries parallelise superbly.
