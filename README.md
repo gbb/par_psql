@@ -189,9 +189,18 @@ So please keep in mind the tool has been built as a quick hack for easy GIS-styl
 
 It’s available under the postgresql open source license. I am grateful to the Norwegian Forest and Landscape Institute (soon to be integrated into the Norwegian NIBIO Institute) for supporting and open sourcing this and other scripts as a contribution to this year’s FOSS4G Europe Open Source Mapping conference.
 
+See Also
+--------
+
+- [pmpp: Poor Man's Parallel Processing](https://github.com/moat/pmpp).
+Corey Huinker had the awesome idea of using dblink async as a foundation for distributing queries. This allows  parallelisation at the query level and across multiple dbs. PMPP requires a little bit more syntax, but it is capable of addressing a wider range of parallelisation cases than par_psql. Check it out! A very cool project.
+
+- A presentation on 'easy parallel programming' given at FOSS4G Como & FOSS4G Norway: http://graemebell.net/foss4gcomo.pdf.
+
+
 
 Graeme Bell  
-grb@skogog-land-skap.no   (remove the hyphens to email me)
+grb@ni-bio.no   (remove the hyphens to email me)
 
 http://github.com/gbb/par_psql/ 
 
