@@ -1,4 +1,4 @@
-par_psql v0.2 (July 2nd, 2015): Parallel ‘psql’. 
+par_psql v0.21 (March 25, 2016): Parallel ‘psql’. 
 -----------------------------------------------
 
 *Run and synchronize parallel queries and workflows inline in PostgreSQL’s psql tool.*
@@ -6,7 +6,7 @@ par_psql v0.2 (July 2nd, 2015): Parallel ‘psql’.
 
 Hi! This is a tool (par_psql) which makes parallelisation easier for postgres/psql users, by providing a new piece of syntax.
 
-*Latest news (2nd July 2015): PG9.3 and PG9.4 benchmarks added, below.*
+*Latest news (25th March 2016): Now working with MacOS/BSD. Tests now don't require installation.*
 
 How to use it
 -------------
