@@ -1,8 +1,8 @@
 #!/bin/bash
-# Author: Graeme Bell, Geomatics Section, Norwegian Forest and Landscape Institute   
-# <grb@sk--ogoglandskap.no>. Remove the -- to email me. 
+# Author: Graeme Bell 
+# <xg--i--tx@graemebell.net>. Remove the -- to email me. 
 # Open sourced with permission - see license.md
-# v0.2
+# v0.21
 
 # Parpsql runs any lines marked with --& as a parallel thread, keeping the same command line options.
 # Beware that each --& will run separately, so multi-line SQL should be checked carefully when --& is used.
@@ -82,7 +82,7 @@ fi
 parseloop() {
 
   # Find out if we're changing to a parallel or serial section, or have an unsupported parallel query.
-  # Warning: >0 is going to be 'true' and 0 'false' here, the opposite of normal BASH definitions.
+  # Warning: >0 is 'true' and 0 'false' here, the opposite of normal BASH definitions.
 
   semicolon=$(echo "$sqlline" | grep ';' | wc -l)
   parpsqlmarker=$(echo "$sqlline" | grep -- '--&' | wc -l)    # '--' prevents grep parsing '--&' as its own param
@@ -91,22 +91,22 @@ parseloop() {
   debug "SC=$semicolon; PSQLM=$parpsqlmarker ; TRANS=$transaction; PARMODE=$parmode"
 
   # If you see BEGIN or TRANSACTION, and there is a parpsqlmarker, it's an error. Exit. 
-  if [[ "$transaction" > 0 && "$parpsqlmarker" > 0 ]] ; then 
+  if [[ "$transaction" -ne 0 && "$parpsqlmarker" -ne 0 ]] ; then 
 	echo 'Error 1: BEGIN/COMMIT/TRANSACTION/ROLLBACK keyword detected. Transactions/function statements may not be used in parallel mode. Exiting.'; 
 	exit 1; 
 
   # If you see a parpsqlmarker with no semicolon; it's an error in the input
-  elif [[ "$semicolon" == 0 && "$parpsqlmarker" > 0 ]]; then 
+  elif [[ "$semicolon" -eq 0 && "$parpsqlmarker" -ne 0 ]]; then 
 	echo 'Error 2: When you use the parallel marker --&, you must have ";" in the same line. Exiting.'; 
 	exit 1; 
 
   # If you don't see a semicolon or parpsqlmarker, keep writing to the current file
-  elif [[ "$semicolon" == 0 && "$parpsqlmarker" == 0 ]]; then 
+  elif [[ "$semicolon" -eq 0 && "$parpsqlmarker" -eq 0 ]]; then 
 	debug 'No change of mode. Continuing to write to file'; 
 	echo $sqlline >> $currentfile
 
   # if you see a semicolon and a parpsqlmarker together, and are in parallel mode, 
-  elif [[ "$semicolon" > 0 && "$parpsqlmarker" > 0 && "$parmode" > 0 ]]; then 
+  elif [[ "$semicolon" -ne 0 && "$parpsqlmarker" -ne 0 && "$parmode" -ne 0 ]]; then 
 	debug 'parpsql marker found; in parallel mode already; staying in parallel mode'
 
   # write the current line out to currentfile
@@ -119,7 +119,7 @@ parseloop() {
 	currentfile=$(mktemp)
 
   # if you see a semicolon and a parpsqlmarker together, and are in serial mode, change to parallel mode
-  elif [[ "$semicolon" > 0 && "$parpsqlmarker" > 0 && "$parmode" == 0 ]]; then 
+  elif [[ "$semicolon" -ne 0 && "$parpsqlmarker" -ne 0 && "$parmode" -eq 0 ]]; then 
 	debug 'parpsql marker found; in serial mode; changing to parallel mode'
 
   # write the current line out to the current file
@@ -142,7 +142,7 @@ parseloop() {
 	serialtodofile=$(mktemp)
 
   # If you see a semicolon but no parpsql marker, and are in parallel mode, end parallel mode, start serial mode.
-  elif [[ "$semicolon" > 0 && "$parpsqlmarker" == 0 && "$parmode" > 0 ]]; then 
+  elif [[ "$semicolon" -ne 0 && "$parpsqlmarker" -eq 0 && "$parmode" -ne 0 ]]; then 
 	debug 'ending parallel mode, starting serial mode'
 
   # Syncronise parallel tasks.
@@ -166,7 +166,7 @@ parseloop() {
   # before the current part was moved into serialtodofile. So don't do that please.
 
   # If you see a semicolon but no parpsql marker, and are in serial mode, add the current file to the serial file
-  elif [[ "$semicolon" > 0 && "$parpsqlmarker" == 0 && "$parmode" == 0 ]]; then 
+  elif [[ "$semicolon" -ne 0 && "$parpsqlmarker" -eq 0 && "$parmode" -eq 0 ]]; then 
 	debug 'staying in serial mode'
 
   # Save line to current file.

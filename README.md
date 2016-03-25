@@ -200,7 +200,7 @@ Corey Huinker had the awesome idea of using dblink async as a foundation for dis
 
 
 Graeme Bell  
-grb@ni-bio.no   (remove the hyphens to email me)
+xg--i--tx@graemebell.net   (remove the hyphens to email me)
 
 http://github.com/gbb/par_psql/ 
 

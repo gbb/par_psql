@@ -1,11 +1,12 @@
 #!/bin/bash
 # Test par_psql with 4-way parallelism, running a CPU-intensive function. 
+# This test should be run in the distribution folder of par_psql (e.g. ./par_psql exists)
 
 DB_NAME="par_psql_test"
 DB_OPTIONS="-d $DB_NAME"
 LOG="/tmp/par_psql_benchmarks"
 
-par_psql --parpsqlversion > $LOG
+./par_psql --parpsqlversion > $LOG
 
 setup_benchmark() {
   echo "Creating fresh database to run '$1'"
@@ -16,8 +17,8 @@ setup_benchmark() {
 
 cd benchmarks
 
-for bm in $(ls benchmark*.sql | sort -V); do 
-  for program in psql par_psql; do 
+for bm in $(ls benchmark*.sql); do 
+  for program in "psql" "../par_psql"; do 
 
   setup_benchmark "$bm";
   sleep 3 # wait a moment for DB/server to catch up with work before starting run

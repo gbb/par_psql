@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# tests
+# You must have permission to create databases to run this test.
 
 DBNAME=par_psql_tests
 
