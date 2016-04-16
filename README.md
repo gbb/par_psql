@@ -204,5 +204,6 @@ xg--i--tx@graemebell.net   (remove the hyphens to email me)
 
 http://github.com/gbb/par_psql/ 
 
+http://parpsql.graemebell.net (was previously parpsql.com )
 
 
