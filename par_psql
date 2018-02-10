@@ -38,6 +38,8 @@ function debug {
 debug "inputfile: $inputfile"
 debug "Input parameters: $cmdline"
 
+psql_cmdline=""
+
 # Ugly alternative to getopt. Print out version and exit if --parpsqlversion is used.
 for item in "$@"; do               # for each item in param array
   if [[ $item == "--parpsqlversion" ]] ; then
@@ -55,6 +57,8 @@ for item in "$@"; do               # for each item in param array
 
   if [[ $item == "--file="* ]] ; then   # if it starts with --file=
     inputfile="${item:7}"
+  else
+    psql_cmdline="$psql_cmdline $item"
   fi
 
 done
@@ -74,6 +78,8 @@ if [[ ! -f "$inputfile" ]] ; then
     echo "File $inputfile does not exist. Aborted."
     exit
 fi
+
+cmdline=$psql_cmdline
 
 # Now parse up the file into parallel and serial sections. 
 # Simple cases are treated first.
