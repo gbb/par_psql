@@ -109,14 +109,14 @@ parseloop() {
   # If you don't see a semicolon or parpsqlmarker, keep writing to the current file
   elif [[ "$semicolon" -eq 0 && "$parpsqlmarker" -eq 0 ]]; then 
 	debug 'No change of mode. Continuing to write to file'; 
-	echo $sqlline >> $currentfile
+	echo "$sqlline" >> $currentfile
 
   # if you see a semicolon and a parpsqlmarker together, and are in parallel mode, 
   elif [[ "$semicolon" -ne 0 && "$parpsqlmarker" -ne 0 && "$parmode" -ne 0 ]]; then 
 	debug 'parpsql marker found; in parallel mode already; staying in parallel mode'
 
   # write the current line out to currentfile
-	echo $sqlline >> $currentfile
+	echo "$sqlline" >> $currentfile
 
   # start running the current file in parallel
 	( eval psql "$cmdline" --file=$currentfile && rm -f "$currentfile" ) &  
@@ -129,7 +129,7 @@ parseloop() {
 	debug 'parpsql marker found; in serial mode; changing to parallel mode'
 
   # write the current line out to the current file
-	echo $sqlline >> $currentfile
+	echo "$sqlline" >> $currentfile
 
   # first, run the 'serial code' file that was previously built up, non-parallelised
   # wait for it to finish
@@ -155,7 +155,7 @@ parseloop() {
 	wait
 
   # Save the current line to the current file.
- 	echo $sqlline >> $currentfile	
+ 	echo "$sqlline" >> $currentfile	
 
   # concatenate the current file to serial-to-do
 	cat $currentfile >> $serialtodofile
@@ -176,7 +176,7 @@ parseloop() {
 	debug 'staying in serial mode'
 
   # Save line to current file.
- 	echo $sqlline >> $currentfile	
+ 	echo "$sqlline" >> $currentfile	
 
   # Save the current file into serialtodofile
 	cat $currentfile >> $serialtodofile
