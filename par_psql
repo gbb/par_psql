@@ -92,7 +92,7 @@ parseloop() {
 
   semicolon=$(echo "$sqlline" | grep ';' | wc -l)
   parpsqlmarker=$(echo "$sqlline" | grep -- '--&' | wc -l)    # '--' prevents grep parsing '--&' as its own param
-  transaction=$(echo "$sqlline" | grep --ignore-case "TRANSACTION\|BEGIN\|COMMIT\|ROLLBACK" | wc -l) 
+  transaction=$(echo "$sqlline" | grep --ignore-case -w "TRANSACTION\|BEGIN\|COMMIT\|ROLLBACK" | wc -l)
 
   debug "SC=$semicolon; PSQLM=$parpsqlmarker ; TRANS=$transaction; PARMODE=$parmode"
 
