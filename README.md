@@ -2,9 +2,10 @@ par_psql v0.22 (Jan 12, 2022): Parallel ‘psql’.
 -----------------------------------------------
 
 *Run and synchronize parallel queries and workflows inline in PostgreSQL’s psql tool.*
+
 *Useful for ‘slightly big data’, GIS.*
 
-Hi! This is a tool (par_psql) which makes parallelisation easier for postgres/psql users, by providing a new piece of syntax.
+Hi! This tool (par_psql) makes parallelisation easier for postgresql, by providing in-line syntax for manual parallelisation.
 
 *Latest news (25th March 2016): Now working with MacOS/BSD. Tests now don't require installation.*
 
