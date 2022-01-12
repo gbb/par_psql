@@ -1,6 +1,13 @@
 Changelog
 ----
 
+0.22 - Change summary.
+       1. Bugfix: now returns error status correctly if the script aborts during execution. (thanks to https://github.com/harrybiddle!)
+       2. Bugfix: now detects use of single transaction mode and aborts script with error message & status (also harrybiddle).
+       3. Bugfix: no longer accidentally recognises e.g. 'transaction_id' column as 'transaction' keyword (thanks to https://github.com/gugaiz!)
+       4. Maintainer note: I am *delighted* that people noticed & patched bugs on a repo that's 6 years since the last update. Thank you both!
+
+
 0.21 - Change summary.
        1. par_psql now works on MacOS/BSD.
        2. Benchmarks etc. now run even if you haven't installed par_psql yet.
