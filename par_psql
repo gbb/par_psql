@@ -52,13 +52,18 @@ for item in "$@"; do               # for each item in param array
   if [[ $item == "-f" ]] ; then 
     echo "-f parameter detected. Aborted."
     echo "  parpsql requires --file=filename. Please don't use -f or stdin."
-    exit
+    exit 1
   fi
 
   if [[ $item == "--file="* ]] ; then   # if it starts with --file=
     inputfile="${item:7}"
   else
     psql_cmdline="$psql_cmdline $item"
+  fi
+  
+  if [[ $item == "-1" ]] || [[ $item == "--single-transaction" ]] ; then
+    echo "-1/--single-transaction not supported. Aborted"
+    exit 1
   fi
 
 done
@@ -68,7 +73,7 @@ done
 if [[ "$inputfile" == "" ]] ; then 
     echo "--file parameter missing. Aborted."
     echo "  parpsql requires --file=filename. Please don't use -f or stdin."
-    exit
+    exit 1
 fi
 
 
@@ -76,7 +81,7 @@ fi
 
 if [[ ! -f "$inputfile" ]] ; then
     echo "File $inputfile does not exist. Aborted."
-    exit
+    exit 1
 fi
 
 cmdline=$psql_cmdline
