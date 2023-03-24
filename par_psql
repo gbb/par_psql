@@ -24,6 +24,7 @@ parpsqlmarker=0
 parmode=0
 lineno=1
 cmdline="$@"
+pids=()
 
 # helper function
 function debug {
@@ -31,6 +32,25 @@ function debug {
   then
     echo "$@"
   fi
+}
+
+# wait on background processes individually to check their exit status
+function sync {
+  debug "waiting on ${#pids[@]} SQL queries to finish"
+  error=0
+  for pid in ${pids[*]}; do
+    wait $pid
+    if [ $? -ne 0 ];
+    then
+      error=1
+    fi
+  done
+
+  if [ $error -eq 1 ];
+  then
+    exit 3
+  fi
+  pids=()
 }
 
 # Check that the input file is specified with --file
@@ -124,7 +144,7 @@ parseloop() {
 	echo "$sqlline" >> $currentfile
 
   # start running the current file in parallel
-	( eval psql "$cmdline" --file=$currentfile && rm -f "$currentfile" ) &  
+	( eval psql "$cmdline" --file=$currentfile && rm -f "$currentfile" ) & pids+=($!)  
 
   # make a new current file.
 	currentfile=$(mktemp)
@@ -138,10 +158,10 @@ parseloop() {
 
   # first, run the 'serial code' file that was previously built up, non-parallelised
   # wait for it to finish
-	( eval psql $cmdline --file=$serialtodofile && rm -f "$serialtodofile" ) 
+	( eval psql $cmdline --file=$serialtodofile && rm -f "$serialtodofile" ) || exit $? 
 	
   # then run the current file in parallel && delete it after
-	( eval psql $cmdline --file=$currentfile && rm -f "$currentfile" ) &
+	( eval psql $cmdline --file=$currentfile && rm -f "$currentfile" ) & pids+=($!)
 	
   # start parallel mode
 	parmode=1
@@ -157,7 +177,7 @@ parseloop() {
 	debug 'ending parallel mode, starting serial mode'
 
   # Syncronise parallel tasks.
-	wait
+	sync
 
   # Save the current line to the current file.
  	echo "$sqlline" >> $currentfile	
@@ -211,8 +231,8 @@ done < $inputfile
 
 rm $currentfile
 
-wait
-( eval psql $cmdline --file=$serialtodofile && rm -f "$serialtodofile" ) 
+sync
+( eval psql $cmdline --file=$serialtodofile && rm -f "$serialtodofile" ) || exit $?
 
 # At the end, we must ensure everything is synchronised then run 'serialtodofile' in case anything is left
 # e.g. in case we ended in serial mode. 
